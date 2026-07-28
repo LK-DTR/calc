@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Calculadora de Desconto</title>
+
+        <style>
+            /* Chrome, Edge, Opera */
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            /* Firefox */
+            input[type="number"] {
+                -moz-appearance: textfield;
+                appearance: textfield;
+            }
+
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                background: #1f1f1f;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+
+            .box {
+                background: #2d2d2d;
+                padding: 25px;
+                border-radius: 12px;
+                width: 340px;
+                color: white;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+            }
+
+            h2 {
+                text-align: center;
+                margin-top: 0;
+            }
+
+            input {
+                width: 100%;
+                padding: 12px;
+                margin: 8px 0;
+                font-size: 18px;
+                border: none;
+                border-radius: 8px;
+                background: #444;
+                color: white;
+                box-sizing: border-box;
+            }
+
+            #resultado {
+                margin-top: 15px;
+                background: #444;
+                padding: 15px;
+                text-align: center;
+                border-radius: 8px;
+                font-size: 22px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <h2>Desconto Percentual</h2>
+
+            <input id="original" type="number" step="any" placeholder="Valor original" />
+
+            <input id="final" type="number" step="any" placeholder="Valor com desconto" />
+
+            <div id="resultado">0.0000%</div>
+        </div>
+
+        <script>
+            const original = document.getElementById("original");
+            const finalValor = document.getElementById("final");
+
+            async function calcular() {
+                let o = parseFloat(original.value);
+                let f = parseFloat(finalValor.value);
+
+                if (isNaN(o) || isNaN(f) || o == 0) return;
+
+                let desconto = ((o - f) / o) * 100;
+
+                let result = desconto.toFixed(4).replace(".", ",");
+
+                document.getElementById("resultado").innerHTML = result;
+
+                try {
+                    await navigator.clipboard.writeText(result);
+                } catch (e) {}
+            }
+
+            original.addEventListener("keydown", trocarCampo);
+            finalValor.addEventListener("keydown", trocarCampo);
+
+            function trocarCampo(e) {
+                if (e.key === "Tab") {
+                    e.preventDefault();
+
+                    if (document.activeElement === original) {
+                        finalValor.focus();
+                    } else {
+                        original.focus();
+                    }
+                }
+
+                if (e.key === "Enter") {
+                    calcular();
+                }
+            }
+
+            original.focus();
+        </script>
+    </body>
+</html>
