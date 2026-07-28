@@ -2,122 +2,187 @@
 <html lang="pt-BR">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Calculadora de Desconto</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Calculadora Percentual</title>
+        <link rel="icon" type="image/png" href="icon.ico" />
 
         <style>
-            /* Chrome, Edge, Opera */
+            * {
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+            }
+            body {
+                margin: 0;
+                background: #1f1f1f;
+                color: #fff;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 20px;
+            }
+            .container {
+                width: 100%;
+                max-width: 420px;
+                background: #2d2d2d;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
+            }
+            .tabs {
+                display: flex;
+                gap: 6px;
+                margin-bottom: 20px;
+            }
+            .tab {
+                flex: 1;
+                padding: 10px;
+                border: 0;
+                border-radius: 8px;
+                background: #444;
+                color: #fff;
+                cursor: pointer;
+            }
+            .tab.active {
+                background: #2ecc71;
+                color: #111;
+                font-weight: bold;
+            }
+            .page {
+                display: none;
+            }
+            .page.active {
+                display: block;
+            }
+            input {
+                width: 100%;
+                padding: 12px;
+                margin: 8px 0;
+                border: 0;
+                border-radius: 8px;
+                background: #444;
+                color: #fff;
+                font-size: 18px;
+            }
             input::-webkit-outer-spin-button,
             input::-webkit-inner-spin-button {
                 -webkit-appearance: none;
                 margin: 0;
             }
-
-            /* Firefox */
             input[type="number"] {
-                -moz-appearance: textfield;
                 appearance: textfield;
             }
-
-            body {
-                font-family: Arial, Helvetica, sans-serif;
-                background: #1f1f1f;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-            }
-
-            .box {
-                background: #2d2d2d;
-                padding: 25px;
-                border-radius: 12px;
-                width: 340px;
-                color: white;
-                box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-            }
-
-            h2 {
-                text-align: center;
-                margin-top: 0;
-            }
-
-            input {
-                width: 100%;
-                padding: 12px;
-                margin: 8px 0;
-                font-size: 18px;
-                border: none;
-                border-radius: 8px;
+            .result {
                 background: #444;
-                color: white;
-                box-sizing: border-box;
-            }
-
-            #resultado {
-                margin-top: 15px;
-                background: #444;
-                padding: 15px;
-                text-align: center;
+                padding: 14px;
                 border-radius: 8px;
+                text-align: center;
                 font-size: 22px;
                 font-weight: bold;
+            }
+            .status {
+                height: 22px;
+                color: #2ecc71;
+                text-align: center;
+                margin-top: 8px;
+                opacity: 0;
+                transition: 0.2s;
             }
         </style>
     </head>
     <body>
-        <div class="box">
-            <h2>Desconto Percentual</h2>
+        <div class="container">
+            <div class="tabs">
+                <button class="tab active" onclick="show(0)">Desconto</button>
+                <button class="tab" onclick="show(1)">Aumento</button>
+                <button class="tab" onclick="show(2)">Remover Imposto</button>
+            </div>
 
-            <input id="original" type="number" step="any" placeholder="Valor original" />
+            <div class="page active">
+                <input id="o1" type="number" step="any" placeholder="Valor original" />
+                <input id="f1" type="number" step="any" placeholder="Valor com desconto" />
+                <h3 style="text-align: center">Percentual de desconto</h3>
+                <div id="r1" class="result">0,0000%</div>
+                <div id="s1" class="status"></div>
+            </div>
 
-            <input id="final" type="number" step="any" placeholder="Valor com desconto" />
+            <div class="page">
+                <input id="v2" type="number" step="any" placeholder="Valor original" />
+                <input id="p2" type="number" step="any" placeholder="Aumento (%)" />
+                <h3 style="text-align: center">Valor após aumento</h3>
+                <div id="r2" class="result">0,0000</div>
+                <div id="s2" class="status"></div>
+            </div>
 
-            <div id="resultado">0.0000%</div>
+            <div class="page">
+                <input id="vf3" type="number" step="any" placeholder="Valor com imposto" />
+                <input id="p3" type="number" step="any" placeholder="Imposto (%)" />
+                <h3 style="text-align: center">Valor sem imposto</h3>
+                <div id="r3" class="result">0,0000</div>
+                <div id="s3" class="status"></div>
+            </div>
         </div>
-
         <script>
-            const original = document.getElementById("original");
-            const finalValor = document.getElementById("final");
-
-            async function calcular() {
-                let o = parseFloat(original.value);
-                let f = parseFloat(finalValor.value);
-
-                if (isNaN(o) || isNaN(f) || o == 0) return;
-
-                let desconto = ((o - f) / o) * 100;
-
-                let result = desconto.toFixed(4).replace(".", ",");
-
-                document.getElementById("resultado").innerHTML = result;
-
+            function fmt(v) {
+                return v.toFixed(4).replace(".", ",");
+            }
+            async function copy(txt, st) {
                 try {
-                    await navigator.clipboard.writeText(result);
+                    await navigator.clipboard.writeText(txt);
                 } catch (e) {}
+                st.textContent = "✓ Copiado para a área de transferência";
+                st.style.opacity = 1;
+                clearTimeout(st.t);
+                st.t = setTimeout(() => (st.style.opacity = 0), 1800);
             }
-
-            original.addEventListener("keydown", trocarCampo);
-            finalValor.addEventListener("keydown", trocarCampo);
-
-            function trocarCampo(e) {
-                if (e.key === "Tab") {
-                    e.preventDefault();
-
-                    if (document.activeElement === original) {
-                        finalValor.focus();
-                    } else {
-                        original.focus();
+            function key(a, b, fn) {
+                return (e) => {
+                    if (e.key == "Tab") {
+                        e.preventDefault();
+                        (document.activeElement === a ? b : a).focus();
                     }
-                }
-
-                if (e.key === "Enter") {
-                    calcular();
-                }
+                    if (e.key == "Enter") fn();
+                };
             }
-
-            original.focus();
+            function show(i) {
+                document
+                    .querySelectorAll(".tab")
+                    .forEach((t, n) => t.classList.toggle("active", n === i));
+                document
+                    .querySelectorAll(".page")
+                    .forEach((p, n) => p.classList.toggle("active", n === i));
+                const ids = [o1, v2, vf3];
+                ids[i].focus();
+            }
+            function desconto() {
+                let o = +o1.value,
+                    f = +f1.value;
+                if (!o) return;
+                let t = fmt(((o - f) / o) * 100);
+                r1.textContent = t + "%";
+                copy(t, s1);
+            }
+            function aumento() {
+                let v = +v2.value,
+                    p = +p2.value;
+                let t = fmt(v * (1 + p / 100));
+                r2.textContent = t;
+                copy(t, s2);
+            }
+            function imposto() {
+                let vf = +vf3.value,
+                    p = +p3.value;
+                let t = fmt(vf / (1 + p / 100));
+                r3.textContent = t;
+                copy(t, s3);
+            }
+            o1.onkeydown = key(o1, f1, desconto);
+            f1.onkeydown = key(o1, f1, desconto);
+            v2.onkeydown = key(v2, p2, aumento);
+            p2.onkeydown = key(v2, p2, aumento);
+            vf3.onkeydown = key(vf3, p3, imposto);
+            p3.onkeydown = key(vf3, p3, imposto);
+            o1.focus();
         </script>
     </body>
 </html>
