@@ -2,187 +2,673 @@
 <html lang="pt-BR">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Calculadora Percentual</title>
         <link rel="icon" type="image/png" href="icon.ico" />
-
         <style>
+            /* ===== Reset básico ===== */
             * {
-                box-sizing: border-box;
-                font-family: Arial, sans-serif;
-            }
-            body {
                 margin: 0;
-                background: #1f1f1f;
-                color: #fff;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            :root {
+                --verde: #2ecc71;
+                --verde-escuro: #27ae60;
+                --fundo: #121212;
+                --card: #1e1e1e;
+                --card-hover: #262626;
+                --texto: #f1f1f1;
+                --texto-secundario: #a0a0a0;
+                --erro: #e74c3c;
+                --borda: #333333;
+            }
+
+            html,
+            body {
+                height: 100%;
+            }
+
+            body {
+                font-family: "Segoe UI", Roboto, Arial, sans-serif;
+                background: radial-gradient(circle at top, #1a1a1a 0%, #0d0d0d 100%);
+                color: var(--texto);
                 display: flex;
-                justify-content: center;
                 align-items: center;
+                justify-content: center;
                 min-height: 100vh;
                 padding: 20px;
             }
+
+            /* ===== Card principal ===== */
             .container {
                 width: 100%;
                 max-width: 420px;
-                background: #2d2d2d;
-                border-radius: 12px;
-                padding: 20px;
-                box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
+                background: var(--card);
+                border-radius: 20px;
+                padding: 32px 28px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                border: 1px solid var(--borda);
+                animation: fadeIn 0.4s ease;
             }
-            .tabs {
-                display: flex;
-                gap: 6px;
-                margin-bottom: 20px;
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
-            .tab {
-                flex: 1;
-                padding: 10px;
-                border: 0;
-                border-radius: 8px;
-                background: #444;
-                color: #fff;
-                cursor: pointer;
+
+            /* ===== Cabeçalho ===== */
+            .header {
+                text-align: center;
+                margin-bottom: 24px;
             }
-            .tab.active {
-                background: #2ecc71;
-                color: #111;
+
+            .icon-percent {
+                font-size: 48px;
+                color: var(--verde);
                 font-weight: bold;
+                line-height: 1;
+                margin-bottom: 8px;
+                text-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
             }
-            .page {
-                display: none;
+
+            .header h1 {
+                font-size: 22px;
+                font-weight: 600;
+                color: var(--texto);
+                letter-spacing: 0.3px;
             }
-            .page.active {
-                display: block;
+
+            /* ===== Seletor de modos ===== */
+            .mode-selector {
+                display: flex;
+                background: #151515;
+                border-radius: 14px;
+                padding: 4px;
+                margin-bottom: 24px;
+                border: 1px solid var(--borda);
             }
-            input {
+
+            .mode-btn {
+                flex: 1;
+                padding: 10px 6px;
+                border: none;
+                background: transparent;
+                color: var(--texto-secundario);
+                font-size: 12px;
+                font-weight: 600;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                white-space: nowrap;
+            }
+
+            .mode-btn:hover {
+                color: var(--texto);
+            }
+
+            .mode-btn.active {
+                background: var(--verde);
+                color: #0a0a0a;
+                box-shadow: 0 4px 12px rgba(46, 204, 113, 0.35);
+                transform: scale(1.02);
+            }
+
+            /* ===== Campos ===== */
+            .fields {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                margin-bottom: 22px;
+            }
+
+            .field-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                overflow: hidden;
+                transition:
+                    max-height 0.35s ease,
+                    opacity 0.3s ease,
+                    margin 0.35s ease;
+                max-height: 80px;
+                opacity: 1;
+            }
+
+            .field-group.hidden {
+                max-height: 0;
+                opacity: 0;
+                pointer-events: none;
+                gap: 0;
+            }
+
+            .field-group label {
+                font-size: 13px;
+                color: var(--texto-secundario);
+                font-weight: 500;
+                padding-left: 4px;
+            }
+
+            .field-group input {
                 width: 100%;
-                padding: 12px;
-                margin: 8px 0;
-                border: 0;
-                border-radius: 8px;
-                background: #444;
-                color: #fff;
-                font-size: 18px;
+                padding: 13px 16px;
+                font-size: 16px;
+                color: var(--texto);
+                background: #151515;
+                border: 1.5px solid var(--borda);
+                border-radius: 12px;
+                outline: none;
+                transition:
+                    border-color 0.25s ease,
+                    box-shadow 0.25s ease,
+                    background 0.25s ease;
             }
-            input::-webkit-outer-spin-button,
-            input::-webkit-inner-spin-button {
+
+            .field-group input::placeholder {
+                color: #5a5a5a;
+            }
+
+            .field-group input:focus {
+                border-color: var(--verde);
+                background: #181818;
+                box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+            }
+
+            .field-group input.invalid {
+                border-color: var(--erro);
+                box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+                animation: shake 0.3s ease;
+            }
+
+            @keyframes shake {
+                0%,
+                100% {
+                    transform: translateX(0);
+                }
+                25% {
+                    transform: translateX(-5px);
+                }
+                75% {
+                    transform: translateX(5px);
+                }
+            }
+
+            /* Remove as setinhas dos campos numéricos */
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type="number"]::-webkit-inner-spin-button {
                 -webkit-appearance: none;
                 margin: 0;
             }
             input[type="number"] {
+                -moz-appearance: textfield;
                 appearance: textfield;
             }
-            .result {
-                background: #444;
-                padding: 14px;
-                border-radius: 8px;
+
+            /* ===== Resultado ===== */
+            .result-box {
+                background: #151515;
+                border: 1.5px solid var(--borda);
+                border-radius: 14px;
+                padding: 20px;
                 text-align: center;
-                font-size: 22px;
-                font-weight: bold;
+                min-height: 90px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                transition:
+                    border-color 0.3s ease,
+                    box-shadow 0.3s ease;
             }
-            .status {
-                height: 22px;
-                color: #2ecc71;
+
+            .result-box.has-value {
+                border-color: var(--verde);
+                box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.12);
+            }
+
+            .result-label {
+                font-size: 12px;
+                color: var(--texto-secundario);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .result-value {
+                font-size: 34px;
+                font-weight: 700;
+                color: var(--verde);
+                word-break: break-all;
+                transition: transform 0.25s ease;
+            }
+
+            .result-value.pulse {
+                animation: pulse 0.35s ease;
+            }
+
+            @keyframes pulse {
+                0% {
+                    transform: scale(1);
+                }
+                40% {
+                    transform: scale(1.08);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            /* ===== Mensagem de cópia ===== */
+            .copy-message {
+                margin-top: 14px;
                 text-align: center;
-                margin-top: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--verde);
+                min-height: 18px;
                 opacity: 0;
-                transition: 0.2s;
+                transform: translateY(-4px);
+                transition:
+                    opacity 0.25s ease,
+                    transform 0.25s ease;
+            }
+
+            .copy-message.show {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* ===== Dica de atalhos ===== */
+            .hints {
+                margin-top: 18px;
+                display: flex;
+                justify-content: center;
+                gap: 14px;
+                flex-wrap: wrap;
+            }
+
+            .hints span {
+                font-size: 11px;
+                color: #555;
+                background: #151515;
+                padding: 4px 10px;
+                border-radius: 8px;
+                border: 1px solid var(--borda);
+            }
+
+            .hints span b {
+                color: var(--texto-secundario);
+            }
+
+            /* ===== Responsivo ===== */
+            @media (max-width: 480px) {
+                .container {
+                    padding: 26px 20px;
+                    border-radius: 16px;
+                }
+                .icon-percent {
+                    font-size: 40px;
+                }
+                .header h1 {
+                    font-size: 19px;
+                }
+                .result-value {
+                    font-size: 28px;
+                }
+                .mode-btn {
+                    font-size: 11px;
+                    padding: 10px 4px;
+                }
             }
         </style>
     </head>
     <body>
         <div class="container">
-            <div class="tabs">
-                <button class="tab active" onclick="show(0)">Desconto</button>
-                <button class="tab" onclick="show(1)">Aumento</button>
-                <button class="tab" onclick="show(2)">Remover Imposto</button>
+            <!-- Cabeçalho -->
+            <div class="header">
+                <div class="icon-percent">%</div>
+                <h1>Calculadora Percentual</h1>
             </div>
 
-            <div class="page active">
-                <input id="o1" type="number" step="any" placeholder="Valor original" />
-                <input id="f1" type="number" step="any" placeholder="Valor com desconto" />
-                <h3 style="text-align: center">Percentual de desconto</h3>
-                <div id="r1" class="result">0,0000%</div>
-                <div id="s1" class="status"></div>
+            <!-- Seletor de modos -->
+            <div class="mode-selector">
+                <button type="button" class="mode-btn active" data-mode="normal">Normal</button>
+                <button type="button" class="mode-btn" data-mode="removerImposto">
+                    Remover imposto
+                </button>
+                <button type="button" class="mode-btn" data-mode="adicionarAumento">
+                    Adicionar aumento
+                </button>
             </div>
 
-            <div class="page">
-                <input id="v2" type="number" step="any" placeholder="Valor original" />
-                <input id="p2" type="number" step="any" placeholder="Aumento (%)" />
-                <h3 style="text-align: center">Valor após aumento</h3>
-                <div id="r2" class="result">0,0000</div>
-                <div id="s2" class="status"></div>
+            <!-- Campos -->
+            <div class="fields">
+                <div class="field-group" id="grupoBruto">
+                    <label for="precoBruto">Preço bruto</label>
+                    <input
+                        type="number"
+                        id="precoBruto"
+                        placeholder="Ex: 230"
+                        step="any"
+                        inputmode="decimal"
+                    />
+                </div>
+
+                <div class="field-group" id="grupoLiquido">
+                    <label for="precoLiquido">Preço líquido</label>
+                    <input
+                        type="number"
+                        id="precoLiquido"
+                        placeholder="Ex: 130"
+                        step="any"
+                        inputmode="decimal"
+                    />
+                </div>
+
+                <div class="field-group hidden" id="grupoPercentual">
+                    <label for="percentual" id="labelPercentual">Imposto (%)</label>
+                    <input
+                        type="number"
+                        id="percentual"
+                        placeholder="Ex: 15"
+                        step="any"
+                        inputmode="decimal"
+                    />
+                </div>
             </div>
 
-            <div class="page">
-                <input id="vf3" type="number" step="any" placeholder="Valor com imposto" />
-                <input id="p3" type="number" step="any" placeholder="Imposto (%)" />
-                <h3 style="text-align: center">Valor sem imposto</h3>
-                <div id="r3" class="result">0,0000</div>
-                <div id="s3" class="status"></div>
+            <!-- Resultado -->
+            <div class="result-box" id="resultBox">
+                <span class="result-label">Resultado</span>
+                <span class="result-value" id="resultValue">—</span>
+            </div>
+
+            <!-- Mensagem de cópia -->
+            <div class="copy-message" id="copyMessage">✓ Copiado para a área de transferência</div>
+
+            <!-- Dicas de atalhos -->
+            <div class="hints">
+                <span><b>Enter</b> calcula</span>
+                <span><b>Tab</b> navega</span>
+                <span><b>Esc</b> limpa</span>
             </div>
         </div>
+
         <script>
-            function fmt(v) {
-                return v.toFixed(4).replace(".", ",");
-            }
-            async function copy(txt, st) {
-                try {
-                    await navigator.clipboard.writeText(txt);
-                } catch (e) {}
-                st.textContent = "✓ Copiado para a área de transferência";
-                st.style.opacity = 1;
-                clearTimeout(st.t);
-                st.t = setTimeout(() => (st.style.opacity = 0), 1800);
-            }
-            function key(a, b, fn) {
-                return (e) => {
-                    if (e.key == "Tab") {
-                        e.preventDefault();
-                        (document.activeElement === a ? b : a).focus();
+            (function () {
+                "use strict";
+
+                // ===== Elementos =====
+                const modeButtons = document.querySelectorAll(".mode-btn");
+                const grupoBruto = document.getElementById("grupoBruto");
+                const grupoLiquido = document.getElementById("grupoLiquido");
+                const grupoPercentual = document.getElementById("grupoPercentual");
+                const labelPercentual = document.getElementById("labelPercentual");
+
+                const inputBruto = document.getElementById("precoBruto");
+                const inputLiquido = document.getElementById("precoLiquido");
+                const inputPercentual = document.getElementById("percentual");
+
+                const resultBox = document.getElementById("resultBox");
+                const resultValue = document.getElementById("resultValue");
+                const copyMessage = document.getElementById("copyMessage");
+
+                // ===== Estado =====
+                let modoAtual = "normal"; // normal | removerImposto | adicionarAumento
+                let copyMessageTimeout = null;
+
+                // ===== Utilitários =====
+
+                // Converte string de input (aceita vírgula ou ponto) para número
+                function paraNumero(valorStr) {
+                    if (valorStr === null || valorStr === undefined) return NaN;
+                    const normalizado = String(valorStr).trim().replace(",", ".");
+                    if (normalizado === "") return NaN;
+                    return parseFloat(normalizado);
+                }
+
+                // Formata número com 4 casas decimais e vírgula como separador
+                function formatarResultado(numero) {
+                    return numero.toFixed(4).replace(".", ",");
+                }
+
+                // Retorna a lista de campos atualmente visíveis, na ordem de navegação
+                function camposVisiveis() {
+                    const campos = [inputBruto, inputLiquido];
+                    if (!grupoPercentual.classList.contains("hidden")) {
+                        campos.push(inputPercentual);
                     }
-                    if (e.key == "Enter") fn();
-                };
-            }
-            function show(i) {
-                document
-                    .querySelectorAll(".tab")
-                    .forEach((t, n) => t.classList.toggle("active", n === i));
-                document
-                    .querySelectorAll(".page")
-                    .forEach((p, n) => p.classList.toggle("active", n === i));
-                const ids = [o1, v2, vf3];
-                ids[i].focus();
-            }
-            function desconto() {
-                let o = +o1.value,
-                    f = +f1.value;
-                if (!o) return;
-                let t = fmt(((o - f) / o) * 100);
-                r1.textContent = t + "%";
-                copy(t, s1);
-            }
-            function aumento() {
-                let v = +v2.value,
-                    p = +p2.value;
-                let t = fmt(v * (1 + p / 100));
-                r2.textContent = t;
-                copy(t, s2);
-            }
-            function imposto() {
-                let vf = +vf3.value,
-                    p = +p3.value;
-                let t = fmt(vf / (1 + p / 100));
-                r3.textContent = t;
-                copy(t, s3);
-            }
-            o1.onkeydown = key(o1, f1, desconto);
-            f1.onkeydown = key(o1, f1, desconto);
-            v2.onkeydown = key(v2, p2, aumento);
-            p2.onkeydown = key(v2, p2, aumento);
-            vf3.onkeydown = key(vf3, p3, imposto);
-            p3.onkeydown = key(vf3, p3, imposto);
-            o1.focus();
+                    return campos;
+                }
+
+                // Marca/desmarca um campo como inválido visualmente
+                function marcarInvalido(input, invalido) {
+                    input.classList.toggle("invalid", invalido);
+                }
+
+                function limparInvalidos() {
+                    [inputBruto, inputLiquido, inputPercentual].forEach((i) =>
+                        marcarInvalido(i, false),
+                    );
+                }
+
+                // ===== Troca de modo =====
+                function trocarModo(novoModo) {
+                    modoAtual = novoModo;
+
+                    modeButtons.forEach((btn) => {
+                        btn.classList.toggle("active", btn.dataset.mode === novoModo);
+                    });
+
+                    if (novoModo === "normal") {
+                        grupoPercentual.classList.add("hidden");
+                    } else {
+                        grupoPercentual.classList.remove("hidden");
+                        labelPercentual.textContent =
+                            novoModo === "removerImposto" ? "Imposto (%)" : "Aumento (%)";
+                    }
+
+                    limparResultado();
+                    limparInvalidos();
+                    inputBruto.focus();
+                }
+
+                modeButtons.forEach((btn) => {
+                    btn.addEventListener("click", () => trocarModo(btn.dataset.mode));
+                });
+
+                // ===== Cálculo =====
+                function calcular() {
+                    const bruto = paraNumero(inputBruto.value);
+                    const liquido = paraNumero(inputLiquido.value);
+                    let percentualCampo = null;
+
+                    limparInvalidos();
+
+                    let valido = true;
+
+                    if (isNaN(bruto)) {
+                        marcarInvalido(inputBruto, true);
+                        valido = false;
+                    }
+                    if (isNaN(liquido)) {
+                        marcarInvalido(inputLiquido, true);
+                        valido = false;
+                    }
+
+                    if (modoAtual !== "normal") {
+                        percentualCampo = paraNumero(inputPercentual.value);
+                        if (isNaN(percentualCampo)) {
+                            marcarInvalido(inputPercentual, true);
+                            valido = false;
+                        }
+                    }
+
+                    // Validação extra: em todos os modos que dividem pelo preço bruto, ele não pode ser zero
+                    if (valido && bruto === 0) {
+                        marcarInvalido(inputBruto, true);
+                        valido = false;
+                    }
+
+                    if (!valido) {
+                        return null;
+                    }
+
+                    let resultadoNumerico;
+                    let sufixo = "%";
+
+                    if (modoAtual === "normal") {
+                        // ((Bruto - Líquido) / Bruto) * 100
+                        resultadoNumerico = ((bruto - liquido) / bruto) * 100;
+                    } else if (modoAtual === "removerImposto") {
+                        // 1) Remove o imposto do preço líquido para obter o valor real sem imposto
+                        const valorSemImposto = liquido / (1 + percentualCampo / 100);
+                        // 2) Calcula o percentual de desconto do preço bruto em relação a esse valor
+                        resultadoNumerico = ((bruto - valorSemImposto) / bruto) * 100;
+                    } else if (modoAtual === "adicionarAumento") {
+                        // 1) Aplica o aumento sobre o preço líquido
+                        const valorComAumento = liquido * (1 + percentualCampo / 100);
+                        // 2) Calcula o percentual de desconto do preço bruto em relação a esse valor
+                        resultadoNumerico = ((bruto - valorComAumento) / bruto) * 100;
+                    }
+
+                    return formatarResultado(resultadoNumerico) + sufixo;
+                }
+
+                function limparResultado() {
+                    resultValue.textContent = "—";
+                    resultBox.classList.remove("has-value");
+                    esconderMensagemCopia(true);
+                }
+
+                function exibirResultado(texto) {
+                    resultValue.textContent = texto;
+                    resultBox.classList.add("has-value");
+                    resultValue.classList.remove("pulse");
+                    // força reflow para reiniciar a animação
+                    void resultValue.offsetWidth;
+                    resultValue.classList.add("pulse");
+                }
+
+                // ===== Cópia para área de transferência =====
+                function copiarParaAreaDeTransferencia(texto) {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard
+                            .writeText(texto)
+                            .then(exibirMensagemCopia)
+                            .catch(() => {
+                                copiarFallback(texto);
+                            });
+                    } else {
+                        copiarFallback(texto);
+                    }
+                }
+
+                function copiarFallback(texto) {
+                    const textarea = document.createElement("textarea");
+                    textarea.value = texto;
+                    textarea.style.position = "fixed";
+                    textarea.style.opacity = "0";
+                    document.body.appendChild(textarea);
+                    textarea.focus();
+                    textarea.select();
+                    try {
+                        document.execCommand("copy");
+                        exibirMensagemCopia();
+                    } catch (e) {
+                        // silenciosamente ignora falha de cópia
+                    }
+                    document.body.removeChild(textarea);
+                }
+
+                function exibirMensagemCopia() {
+                    copyMessage.classList.add("show");
+                    if (copyMessageTimeout) clearTimeout(copyMessageTimeout);
+                    copyMessageTimeout = setTimeout(() => {
+                        copyMessage.classList.remove("show");
+                    }, 2200);
+                }
+
+                function esconderMensagemCopia(imediato) {
+                    copyMessage.classList.remove("show");
+                    if (copyMessageTimeout) clearTimeout(copyMessageTimeout);
+                }
+
+                // ===== Ação de calcular + copiar (Enter) =====
+                function acaoCalcularECopiar() {
+                    const resultado = calcular();
+                    if (resultado === null) {
+                        return;
+                    }
+                    exibirResultado(resultado);
+                    copiarParaAreaDeTransferencia(resultado);
+                    // inputBruto.focus();
+                    // inputBruto.select();
+                }
+
+                // ===== Limpar tudo (Esc) =====
+                function limparTudo() {
+                    inputBruto.value = "";
+                    inputLiquido.value = "";
+                    inputPercentual.value = "";
+                    limparInvalidos();
+                    limparResultado();
+                    inputBruto.focus();
+                }
+
+                // ===== Navegação cíclica com Tab =====
+                function tratarTab(event) {
+                    const campos = camposVisiveis();
+                    const indiceAtual = campos.indexOf(document.activeElement);
+
+                    if (indiceAtual === -1) return; // foco fora dos campos, deixa o comportamento padrão
+
+                    event.preventDefault();
+
+                    let proximoIndice;
+                    if (event.shiftKey) {
+                        proximoIndice = (indiceAtual - 1 + campos.length) % campos.length;
+                    } else {
+                        proximoIndice = (indiceAtual + 1) % campos.length;
+                    }
+
+                    campos[proximoIndice].focus();
+                    // campos[proximoIndice].select();
+                }
+
+                // ===== Listeners globais de teclado =====
+                document.addEventListener("keydown", function (event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        acaoCalcularECopiar();
+                    } else if (event.key === "Escape") {
+                        event.preventDefault();
+                        limparTudo();
+                    } else if (event.key === "Tab") {
+                        tratarTab(event);
+                    }
+                });
+
+                // Remove indicação de erro e limpa o resultado assim que o usuário volta a digitar
+                [inputBruto, inputLiquido, inputPercentual].forEach((input) => {
+                    input.addEventListener("input", () => {
+                        marcarInvalido(input, false);
+                        limparResultado();
+                    });
+                });
+
+                // ===== Inicialização =====
+                window.addEventListener("load", () => {
+                    inputBruto.focus();
+                });
+            })();
         </script>
     </body>
 </html>
