@@ -601,27 +601,27 @@
                     if (copyMessageTimeout) clearTimeout(copyMessageTimeout);
                 }
 
-                 // ===== Ação de calcular + copiar (Enter) =====
-                 function acaoCalcularECopiar() {
--                    const resultado = calcular();
--                    if (resultado === null) {
--                        return;
--                    }
--                    exibirResultado(resultado);
--                    copiarParaAreaDeTransferencia(resultado);
--                    // inputBruto.focus();
--                    // inputBruto.select();
-+                    const resultado = calcular();
-+                    if (resultado === null) {
-+                        return;
-+                    }
-+                    exibirResultado(resultado);
-+                    // Copia sem o caractere '%' no final
-+                    const textoParaCopiar = resultado.endsWith("%")
-+                        ? resultado.slice(0, -1).trim()
-+                        : resultado;
-+                    copiarParaAreaDeTransferencia(textoParaCopiar);
-                 }
+                // ===== Ação de calcular + copiar (Enter) =====
+                function acaoCalcularECopiar() {
+                    const resultado = calcular();
+                    if (resultado === null) {
+                        return;
+                    }
+                    exibirResultado(resultado);
+                    copiarParaAreaDeTransferencia(resultado);
+                    // inputBruto.focus();
+                    // inputBruto.select();
+                    const resultado = calcular();
+                    if (resultado === null) {
+                        return;
+                    }
+                    exibirResultado(resultado);
+                    // Copia sem o caractere '%' no final
+                    const textoParaCopiar = resultado.endsWith("%")
+                        ? resultado.slice(0, -1).trim()
+                        : resultado;
+                    copiarParaAreaDeTransferencia(textoParaCopiar);
+                }
 
                 // ===== Limpar tudo (Esc) =====
                 function limparTudo() {
